@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "radio-mas-vida-app",
+    "name": "Radio Más Vida",
     "slug": "radio-mas-vida-app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,16 +15,39 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["audio"]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "WAKE_LOCK"
+      ],
+      "package": "com.enegraso.radiomasvidaapp",
+      "versionCode": 102
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b7b1129e-ebe8-4945-a81f-a89927c5fcbe"
+      }
     }
   }
 }
