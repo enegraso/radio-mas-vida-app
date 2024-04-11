@@ -13,6 +13,7 @@
     "expo-av": "^13.10.5",
     "expo-screen-orientation": "^6.4.1",
     "expo-status-bar": "~1.11.1",
+    "expo-web-browser": "^12.8.2",
     "react": "18.2.0",
     "react-native": "0.73.6",
     "react-native-version-check": "^3.4.7"

@@ -3,6 +3,10 @@ import { View, StyleSheet, Pressable, Text, StatusBar, Image, Alert, Linking, Pl
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import VersionCheck from 'react-native-version-check';
 import imagelogo from "./assets/logosinfondocom.png"
+import ministerlogo from "./assets/logoministerio.webp"
+import { AntDesign, Entypo, FontAwesome6 } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
+
 
 export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,7 +28,7 @@ export default function App() {
 
     // Check for the current version that user has
     const currentVersion = VersionCheck.getCurrentVersion() // ? "1" : VersionCheck.getCurrentVersion();
-    
+
     if (latestVersion && latestVersion > currentVersion) {
       // Prompt user to update the app
       // You can customize this alert to match your app's design and branding, or implement your own custom update notification system.
@@ -32,16 +36,20 @@ export default function App() {
         'Actualizar App',
         'Por favor actualice para continuar usando la app...',
         [
-          { text: 'Actualizar', onPress: () => {
-            if (Platform.OS === 'android') {
-              Linking.openURL('https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp'); // Open Play Store for Android
-            } else {
-              Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
+          {
+            text: 'Actualizar', onPress: () => {
+              if (Platform.OS === 'android') {
+                Linking.openURL('https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp'); // Open Play Store for Android
+              } else {
+                Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
+              }
             }
-          }},
-          { text: 'Luego', onPress: () => {
-            // You can do some action here if needed
-          }}
+          },
+          {
+            text: 'Luego', onPress: () => {
+              // You can do some action here if needed
+            }
+          }
         ]
       );
     } else {
@@ -55,9 +63,14 @@ export default function App() {
 
   async function playSound() {
     console.log("Loading Sound", url);
-    /*     await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-        }); */
+    await Audio.setAudioModeAsync({
+      staysActiveInBackground: true,
+/*       playsInSilentModeIOS: true,
+      interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: true, */
+    });
     const { sound } = await Audio.Sound.createAsync({ "uri": url });
     setSound(sound);
 
@@ -90,53 +103,56 @@ export default function App() {
   }
 
   useEffect(() => {
-    checkForUpdate();
-    Audio.setAudioModeAsync({
-      staysActiveInBackground: true,
-      playsInSilentModeIOS: true,
-      interruptionModeIOS: InterruptionModeIOS.DuckOthers,
-      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: true,
-    });
     return sound
       ? () => {
         console.log("Unloading Sound");
         setIsPlaying(false);
         sound.unloadAsync();
         setSound(null);
+        checkForUpdate()
+        console.log("First Time");
       }
-      : undefined;
+      : undefined
+     
   }, [sound]);
+
+  // funcion para ver red social en navegador
+  const _handlePressButtonAsync = async (web) => {
+    let result = await WebBrowser.openBrowserAsync(web);
+    setResult(result);
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.logo}>
-        <Image source={imagelogo} alt='Logo' />
+        <Image style={styles.divimglogo} source={imagelogo} alt='Logo' />
       </View>
       <View style={styles.divradio}>
         <Pressable style={!enaPlay ? styles.btnradio : styles.btnradiono} disabled={enaPlay} onPress={() => { !sound ? playSound() : resumeSound() }}>
-          <Text style={styles.text}>Play Radio</Text>
+          <AntDesign name="play" size={24} color="white" />
         </Pressable>
         <Pressable style={!enaPause ? styles.btnradio : styles.btnradiono} disabled={enaPause} onPress={() => pauseSound()}>
-          <Text style={styles.text}>Pause Radio</Text>
+          <AntDesign name="pause" size={24} color="white" />
         </Pressable>
         <Pressable style={!enaPause ? styles.btnradio : styles.btnradiono} disabled={enaPause} onPress={() => stopSound()}>
-          <Text style={styles.text}>Stop Radio</Text>
+          <Entypo name="controller-stop" size={24} color="white" />
         </Pressable>
       </View>
+      <View style={styles.volumebar}>
+        <Image style={styles.divimglogo} source={ministerlogo} alt='Logo' />
+      </View>
       <View style={styles.rrss}>
-        <Pressable style={styles.btnrrssfacebook} onPress={() => playSound()}>
-          <Text style={styles.text}>Facebook</Text>
+        <Pressable style={styles.btnrrssfacebook} onPress={() => { _handlePressButtonAsync("https://www.facebook.com/profile.php?id=100082970127079") }}>
+          <Entypo name="facebook-with-circle" size={32} color="white" />
         </Pressable>
-        <Pressable style={styles.btnrrssinsta} onPress={() => playSound()}>
-          <Text style={styles.text}>Instagram</Text>
+        <Pressable style={styles.btnrrssinsta} onPress={() => { _handlePressButtonAsync("https://www.instagram.com/ministeriomasvida_bragado/?hl=es") }}>
+          <Entypo name="instagram-with-circle" size={32} color="white" />
         </Pressable>
-        <Pressable style={styles.btnrrssyoutube} onPress={() => playSound()}>
-          <Text style={styles.text}>Youtube</Text>
+        <Pressable style={styles.btnrrssyoutube} onPress={() => { _handlePressButtonAsync("https://www.youtube.com/@MINISTERIOMASVIDABRAGADO") }}>
+          <Entypo name="youtube-with-circle" size={32} color="white" />
         </Pressable>
-        <Pressable style={styles.btnradio} onPress={() => playSound()}>
-          <Text style={styles.text}>X</Text>
+        <Pressable style={styles.btnrrssx} onPress={() => { _handlePressButtonAsync("https://www.google.com.ar/maps/place/F.+Argentinos+489,+Bragado,+Provincia+de+Buenos+Aires/@-35.1152852,-60.4786487,17z/data=!4m5!3m4!1s0x95bedc328f288219:0xbabd0d53247da704!8m2!3d-35.1154783!4d-60.4761596?entry=ttu") }}>
+          <FontAwesome6 name="location-pin" size={32} color="white" />
         </Pressable>
       </View>
       <StatusBar />
@@ -146,38 +162,49 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ecf0f1',
+    backgroundColor: "#5A1EFA",
     padding: 5,
     alignContent: "center",
   },
   logo: {
     flex: 3,
     flexDirection: "row",
-    justifyContent: "center"
+    alignContent: "center",
+    justifyContent: "center",
+
+    borderRadius: 5,
+  },
+  divimglogo: {
+    width: "90%",
+    height: "90%",
+    resizeMode: "contain"
   },
   divradio: {
-    flex: 2,
+    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: "space-around"
+    borderRadius: 30,
+    alignContent: "center",
+    justifyContent: "space-around",
+    backgroundColor: "orange"
   },
   btnradio: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: 'black',
+    backgroundColor: 'blue',
+    height: 75,
+    width: 75,
   },
   btnradiono: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
     backgroundColor: 'grey',
+    height: 75,
+    width: 75,
   },
   text: {
     fontSize: 16,
@@ -186,38 +213,58 @@ const styles = StyleSheet.create({
     letterSpacing: 0.25,
     color: 'white',
   },
+  volumebar: {
+    flex: 3,
+    margin: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: "space-around",
+    // backgroundColor: "yellow",
+    overflow: "hidden"
+  },
   rrss: {
     flex: 1,
     margin: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: "space-around"
+    alignContent: "center",
+    justifyContent: "space-around",
+    // backgroundColor: "green"
   },
   btnrrssfacebook: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 25,
     elevation: 3,
     backgroundColor: 'blue',
+    height: 75,
+    width: 75,
   },
   btnrrssinsta: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 25,
     elevation: 3,
     backgroundColor: 'purple',
+    height: 75,
+    width: 75,
   },
   btnrrssyoutube: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 25,
     elevation: 3,
     backgroundColor: 'red',
+    height: 75,
+    width: 75,
+  },
+  btnrrssx: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 25,
+    elevation: 3,
+    backgroundColor: 'cyan',
+    height: 75,
+    width: 75,
   },
 });

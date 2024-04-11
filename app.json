@@ -2,7 +2,7 @@
   "expo": {
     "name": "Radio Más Vida",
     "slug": "radio-mas-vida-app",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -31,7 +31,7 @@
         "WAKE_LOCK"
       ],
       "package": "com.enegraso.radiomasvidaapp",
-      "versionCode": 102
+      "versionCode": 104
     },
     "web": {
       "favicon": "./assets/favicon.png"
