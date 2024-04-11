@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, version } from 'react';
 import { View, StyleSheet, Pressable, Text, StatusBar, Image, Alert, Linking, Platform } from 'react-native';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import VersionCheck from 'react-native-version-check';
+import VersionCheck from 'react-native-version-check-expo';
 import imagelogo from "./assets/logosinfondocom.png"
 import ministerlogo from "./assets/logoministerio.webp"
 import { AntDesign, Entypo, FontAwesome6 } from '@expo/vector-icons';
@@ -14,50 +14,54 @@ export default function App() {
   const [enaPlay, setEnaPlay] = useState(false)
   const [enaPause, setEnaPause] = useState(true)
 
-  // Check for the latest store version based on the platform
-  const checkForUpdate = async () => {
-    const androidPackageName = 'com.enegraso.radiomasvidaapp'; // Add your Android package name here
-    try {
-      const latestVersion = await VersionCheck.getLatestVersion({
-        provider: Platform.OS === 'android' ? 'playStore' : 'appStore', // Check store based on platform
-        packageName: Platform.OS === 'android' ? androidPackageName : '',
-      });
-    } catch (error) {
-      console.error('Error fetching latest version: ', error);
-    }
 
+  /*
+   // Check for the latest store version based on the platform
+   const checkForUpdate = async () => {
+ 
+   
+     const androidPackageName = 'com.enegraso.radiomasvidaapp'; // Add your Android package name here
+     try {
+       const latestVersion = await VersionCheck.getLatestVersion({
+         provider: Platform.OS === 'android' ? 'playStore' : 'appStore', // Check store based on platform
+         packageName: Platform.OS === 'android' ? androidPackageName : '',
+       });
+     } catch (error) {
+       console.error('Error fetching latest version: ', error);
+     }
+ 
     // Check for the current version that user has
-    const currentVersion = VersionCheck.getCurrentVersion() // ? "1" : VersionCheck.getCurrentVersion();
-
-    if (latestVersion && latestVersion > currentVersion) {
-      // Prompt user to update the app
-      // You can customize this alert to match your app's design and branding, or implement your own custom update notification system.
-      Alert.alert(
-        'Actualizar App',
-        'Por favor actualice para continuar usando la app...',
-        [
-          {
-            text: 'Actualizar', onPress: () => {
-              if (Platform.OS === 'android') {
-                Linking.openURL('https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp'); // Open Play Store for Android
-              } else {
-                Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
-              }
-            }
-          },
-          {
-            text: 'Luego', onPress: () => {
-              // You can do some action here if needed
-            }
-          }
-        ]
-      );
-    } else {
-      // App is up to date
-      // You can do some action here if needed
-    }
-  };
-
+     const currentVersion = VersionCheck.getCurrentVersion() // ? "1" : VersionCheck.getCurrentVersion();
+ 
+     if (latestVersion && latestVersion > currentVersion) {
+       // Prompt user to update the app
+       // You can customize this alert to match your app's design and branding, or implement your own custom update notification system.
+       Alert.alert(
+         'Actualizar App',
+         'Por favor actualice para continuar usando la app...',
+         [
+           {
+             text: 'Actualizar', onPress: () => {
+               if (Platform.OS === 'android') {
+                 Linking.openURL('https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp'); // Open Play Store for Android
+               } else {
+                 Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
+               }
+             }
+           },
+           {
+             text: 'Luego', onPress: () => {
+               // You can do some action here if needed
+             }
+           }
+         ]
+       );
+     } else {
+       // App is up to date
+       // You can do some action here if needed
+     }
+   };
+  */
 
   const url = "https://backend.sib-2000.com.ar/masvida"
 
@@ -65,11 +69,11 @@ export default function App() {
     console.log("Loading Sound", url);
     await Audio.setAudioModeAsync({
       staysActiveInBackground: true,
-/*       playsInSilentModeIOS: true,
-      interruptionModeIOS: InterruptionModeIOS.DuckOthers,
-      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: true, */
+      /*       playsInSilentModeIOS: true,
+            interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+            interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+            shouldDuckAndroid: true,
+            playThroughEarpieceAndroid: true, */
     });
     const { sound } = await Audio.Sound.createAsync({ "uri": url });
     setSound(sound);
@@ -113,7 +117,7 @@ export default function App() {
         console.log("First Time");
       }
       : undefined
-     
+
   }, [sound]);
 
   // funcion para ver red social en navegador
@@ -121,6 +125,33 @@ export default function App() {
     let result = await WebBrowser.openBrowserAsync(web);
     setResult(result);
   };
+
+
+ VersionCheck.needUpdate()
+    .then(async res => {
+      if (res.isNeeded) {
+        Alert.alert(
+          'Actualizar App',
+          'Por favor actualice para continuar usando la app...',
+          [
+            {
+              text: 'Actualizar', onPress: () => {
+                if (Platform.OS === 'android') {
+                  Linking.openURL(res.storeUrl); // Open Play Store for Android
+                } else {
+                  Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
+                }
+              }
+            },
+            {
+              text: 'Luego', onPress: () => {
+                // You can do some action here if needed
+              }
+            }
+          ]
+        );
+      }
+    });
 
   return (
     <View style={styles.container}>
@@ -155,6 +186,10 @@ export default function App() {
           <FontAwesome6 name="location-pin" size={32} color="white" />
         </Pressable>
       </View>
+      <View style={styles.divfooter}>
+        <Pressable onPress={() => { _handlePressButtonAsync("https://sib-2000.com.ar") }}>
+          <Text>Version: {VersionCheck.getCurrentVersion()} by SIB 2000</Text>
+        </Pressable></View>
       <StatusBar />
     </View>);
 }
@@ -171,7 +206,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignContent: "center",
     justifyContent: "center",
-
     borderRadius: 5,
   },
   divimglogo: {
@@ -186,7 +220,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignContent: "center",
     justifyContent: "space-around",
-    backgroundColor: "orange"
+    backgroundColor: "lightgrey"
   },
   btnradio: {
     alignItems: 'center',
@@ -219,7 +253,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: "space-around",
-    // backgroundColor: "yellow",
     overflow: "hidden"
   },
   rrss: {
@@ -267,4 +300,9 @@ const styles = StyleSheet.create({
     height: 75,
     width: 75,
   },
+  divfooter: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center"
+  }
 });
