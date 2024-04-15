@@ -1,109 +1,85 @@
 import { useEffect, useRef, useState, version } from 'react';
-import { View, StyleSheet, Pressable, Text, StatusBar, Image, Alert, Linking, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, Text, StatusBar, Image, Alert, Linking, Platform, Share } from 'react-native';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
 import VersionCheck from 'react-native-version-check-expo';
 import imagelogo from "./assets/logosinfondocom.png"
 import ministerlogo from "./assets/logoministerio.webp"
-import { AntDesign, Entypo, FontAwesome6 } from '@expo/vector-icons';
+import { AntDesign, Entypo, FontAwesome6, MaterialIcons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
-
 
 export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState(null);
-  const [enaPlay, setEnaPlay] = useState(false)
-  const [enaPause, setEnaPause] = useState(true)
-
-
-  /*
-   // Check for the latest store version based on the platform
-   const checkForUpdate = async () => {
- 
-   
-     const androidPackageName = 'com.enegraso.radiomasvidaapp'; // Add your Android package name here
-     try {
-       const latestVersion = await VersionCheck.getLatestVersion({
-         provider: Platform.OS === 'android' ? 'playStore' : 'appStore', // Check store based on platform
-         packageName: Platform.OS === 'android' ? androidPackageName : '',
-       });
-     } catch (error) {
-       console.error('Error fetching latest version: ', error);
-     }
- 
-    // Check for the current version that user has
-     const currentVersion = VersionCheck.getCurrentVersion() // ? "1" : VersionCheck.getCurrentVersion();
- 
-     if (latestVersion && latestVersion > currentVersion) {
-       // Prompt user to update the app
-       // You can customize this alert to match your app's design and branding, or implement your own custom update notification system.
-       Alert.alert(
-         'Actualizar App',
-         'Por favor actualice para continuar usando la app...',
-         [
-           {
-             text: 'Actualizar', onPress: () => {
-               if (Platform.OS === 'android') {
-                 Linking.openURL('https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp'); // Open Play Store for Android
-               } else {
-                 Linking.openURL('your-ios-app-url-in-app-store'); // Open App Store for iOS
-               }
-             }
-           },
-           {
-             text: 'Luego', onPress: () => {
-               // You can do some action here if needed
-             }
-           }
-         ]
-       );
-     } else {
-       // App is up to date
-       // You can do some action here if needed
-     }
-   };
-  */
 
   const url = "https://backend.sib-2000.com.ar/masvida"
+  const urlapp = "https://play.google.com/store/apps/details?id=com.enegraso.radiomasvidaapp&hl=es_AR&gl=US"
 
   async function playSound() {
     console.log("Loading Sound", url);
+    setIsPlaying(true);
+
     await Audio.setAudioModeAsync({
       staysActiveInBackground: true,
-      /*       playsInSilentModeIOS: true,
-            interruptionModeIOS: InterruptionModeIOS.DuckOthers,
-            interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
-            shouldDuckAndroid: true,
-            playThroughEarpieceAndroid: true, */
+      playsInSilentModeIOS: true,
+      interruptionModeIOS: InterruptionModeIOS.DuckOthers, // Change as you like
+      interruptionModeAndroid: InterruptionModeAndroid.DuckOthers, // Change as you like
+      shouldDuckAndroid: true,
+      playThroughEarpieceAndroid: false,
     });
-    const { sound } = await Audio.Sound.createAsync({ "uri": url });
-    setSound(sound);
 
+    const { sound } = await Audio.Sound.createAsync({ "uri": url });
+
+    setSound(sound);
     console.log("Playing Sound", url);
     await sound.playAsync();
-    setEnaPlay(!enaPlay)
-    setEnaPause(!enaPause)
   }
 
   async function stopSound() {
     console.log("Stopping Sound", url);
+    setIsPlaying(false);
     await sound.stopAsync();
-    setSound(null)
-    setEnaPlay(!enaPlay)
-    setEnaPause(!enaPause)
   }
 
   async function pauseSound() {
     console.log("Pause Sound", url);
+    setIsPlaying(false);
     await sound.pauseAsync();
-    setEnaPlay(!enaPlay)
-    setEnaPause(!enaPause)
   }
 
   async function resumeSound() {
     console.log("Resuming Sound", url);
+    setIsPlaying(true)
     await sound.playAsync();
-    setEnaPlay(!enaPlay)
-    setEnaPause(!enaPause)
+  }
+
+  // funcion para ver red social en navegador
+  const _handlePressButtonAsync = async (web) => {
+    let result = await WebBrowser.openBrowserAsync(web);
+    setResult(result);
+  };
+
+
+  const onShare = async () => {
+
+    try {
+      const result = await Share.share({
+        message: ("Compartir Nuestra App: \n" + urlapp)
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+          console.log("share whith activity type of: ", result.activityType)
+        } else {
+          // shared
+          console.log("shared")
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+        console.log("dismissed")
+      }
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   useEffect(() => {
@@ -113,21 +89,13 @@ export default function App() {
         setIsPlaying(false);
         sound.unloadAsync();
         setSound(null);
-        checkForUpdate()
         console.log("First Time");
       }
       : undefined
-
   }, [sound]);
 
-  // funcion para ver red social en navegador
-  const _handlePressButtonAsync = async (web) => {
-    let result = await WebBrowser.openBrowserAsync(web);
-    setResult(result);
-  };
 
-
- VersionCheck.needUpdate()
+  VersionCheck.needUpdate()
     .then(async res => {
       if (res.isNeeded) {
         Alert.alert(
@@ -155,17 +123,29 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.logo}>
-        <Image style={styles.divimglogo} source={imagelogo} alt='Logo' />
+      <View style={styles.cabecera}>
+        <View style={styles.divicono}>
+          <Pressable onPress={() => _handlePressButtonAsync(`market://details?id=com.enegraso.radiomasvidaapp&showAllReviews=true`)}>
+            <MaterialIcons name="rate-review" size={48} color="white" />
+          </Pressable>
+        </View>
+        <View style={styles.logo}>
+          <Image style={styles.divimglogo} source={imagelogo} alt='Logo' />
+        </View>
+        <View style={styles.divicono}>
+          <Pressable onPress={onShare}>
+            <Entypo name="share" size={48} color="white" />
+          </Pressable>
+        </View>
       </View>
       <View style={styles.divradio}>
-        <Pressable style={!enaPlay ? styles.btnradio : styles.btnradiono} disabled={enaPlay} onPress={() => { !sound ? playSound() : resumeSound() }}>
+        <Pressable style={!isPlaying ? styles.btnradio : styles.btnradiono} disabled={isPlaying} onPress={() => { !sound ? playSound() : resumeSound() }}>
           <AntDesign name="play" size={24} color="white" />
         </Pressable>
-        <Pressable style={!enaPause ? styles.btnradio : styles.btnradiono} disabled={enaPause} onPress={() => pauseSound()}>
+        <Pressable style={isPlaying ? styles.btnradio : styles.btnradiono} disabled={!isPlaying} onPress={() => pauseSound()}>
           <AntDesign name="pause" size={24} color="white" />
         </Pressable>
-        <Pressable style={!enaPause ? styles.btnradio : styles.btnradiono} disabled={enaPause} onPress={() => stopSound()}>
+        <Pressable style={isPlaying ? styles.btnradio : styles.btnradiono} disabled={!isPlaying} onPress={() => stopSound()}>
           <Entypo name="controller-stop" size={24} color="white" />
         </Pressable>
       </View>
@@ -188,7 +168,7 @@ export default function App() {
       </View>
       <View style={styles.divfooter}>
         <Pressable onPress={() => { _handlePressButtonAsync("https://sib-2000.com.ar") }}>
-          <Text>Version: {VersionCheck.getCurrentVersion()} by SIB 2000</Text>
+          <Text style={styles.text}>Version: {VersionCheck.getCurrentVersion()} - Powered by SIB 2000</Text>
         </Pressable></View>
       <StatusBar />
     </View>);
@@ -201,12 +181,23 @@ const styles = StyleSheet.create({
     padding: 5,
     alignContent: "center",
   },
-  logo: {
+  cabecera: {
     flex: 3,
     flexDirection: "row",
-    alignContent: "center",
+    alignItems: "center",
     justifyContent: "center",
-    borderRadius: 5,
+    width: "100%",
+    alignSelf: "center",
+  },
+  divicono: {
+    flexDirection: "column",
+    alignItems: "center",
+    width: "15%",
+  },
+  logo: {
+    flexDirection: "column",
+    width: "70%",
+    alignItems: "center",
   },
   divimglogo: {
     width: "90%",
@@ -228,8 +219,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     elevation: 3,
     backgroundColor: 'blue',
-    height: 75,
-    width: 75,
+    height: 60,
+    width: 60,
   },
   btnradiono: {
     alignItems: 'center',
@@ -237,8 +228,8 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     elevation: 3,
     backgroundColor: 'grey',
-    height: 75,
-    width: 75,
+    height: 60,
+    width: 60,
   },
   text: {
     fontSize: 16,

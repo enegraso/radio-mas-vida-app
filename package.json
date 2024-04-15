@@ -9,17 +9,18 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~50.0.14",
+    "expo": "~50.0.15",
     "expo-av": "^13.10.5",
     "expo-screen-orientation": "^6.4.1",
     "expo-status-bar": "~1.11.1",
     "expo-web-browser": "^12.8.2",
     "react": "18.2.0",
     "react-native": "0.73.6",
+    "react-native-track-player": "^4.1.1",
     "react-native-version-check-expo": "^3.4.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.24.4"
   },
   "private": true
 }
