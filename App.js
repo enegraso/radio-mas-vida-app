@@ -60,7 +60,6 @@ export default function App() {
 
 
   const onShare = async () => {
-
     try {
       const result = await Share.share({
         message: ("Compartir Nuestra App: \n" + urlapp)
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
     resizeMode: "contain"
   },
   divradio: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     flexWrap: 'wrap',
     borderRadius: 30,
